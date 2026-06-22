@@ -77,6 +77,12 @@ class Benchmarker
   end
 
   def render(erb_file, output_file, bindings)
+    if erb_file.include?("..") || erb_file.include?("/") || erb_file.include?("\\")
+      raise "Invalid path: path traversal detected in #{erb_file}"
+    end
+    if output_file.include?("..") || output_file.include?("/") || output_file.include?("\\")
+      raise "Invalid path: path traversal detected in #{output_file}"
+    end
     site = ERB.new(File.read(erb_file))
     File.open(output_file, 'w') do |fh|
       fh.write(site.result(OpenStruct.new(bindings).instance_eval { binding }))
